@@ -11,6 +11,22 @@ namespace HttpLease
         T Client { get; }
     }
 
+    internal class HttpLeaseProxy : HttpLeaseProxy<object>
+    {
+        private readonly Type _ClientType;
+
+        public HttpLeaseProxy(Type clientType, IConfig config)
+            : base(config)
+        {
+            _ClientType = clientType;
+        }
+
+        protected override Type GetClientType()
+        {
+            return _ClientType;
+        }
+    }
+
     internal class HttpLeaseProxy<T> : IHttpLeaseProxy<T>
         where T : class
     {
@@ -26,13 +42,22 @@ namespace HttpLease
             public void Intercept(Castle.DynamicProxy.IInvocation invocation)
             {
                 var behavoir = _Behaviors.First(b => b.IsMatch(invocation));
-                
+                var request = behavoir.CreateHttpWebRequest(invocation.Arguments);
+
+                var response = new HttpResponse((System.Net.HttpWebResponse)request.GetResponse());
+                object result = null;
+                if(response.TryConvert(behavoir.ReturnType, out result))
+                {
+                    invocation.ReturnValue = result;  
+                }
+                else
+                {
+                    throw new Exception("不支持此返回类型：" + behavoir.ReturnType.ToString());
+                }         
             }
         }
 
-
-
-        private static Dictionary<Type, Behaviors.IHttpBehavior[]> _BehaviorsCache = new Dictionary<Type, Behaviors.IHttpBehavior[]>();
+        //private static Dictionary<Type, Behaviors.IHttpBehavior[]> _BehaviorsCache = new Dictionary<Type, Behaviors.IHttpBehavior[]>();
         private static Castle.DynamicProxy.ProxyGenerator _ProxyGenerator = new Castle.DynamicProxy.ProxyGenerator();
 
         public IConfig Config { get; private set; }
@@ -43,10 +68,20 @@ namespace HttpLease
             get { return this._Instance ?? CreateInstance(); }
         }
 
+        public HttpLeaseProxy(IConfig config)
+        {
+            Config = config;
+        }
+
         private T CreateInstance()
         {
-            var interceptor = new Interceptor(GetBehaviorsWithCache(typeof(T), Config));
-            return this._Instance = (T)_ProxyGenerator.CreateInterfaceProxyWithoutTarget(typeof(T), interceptor);
+            var interceptor = new Interceptor(GetBehaviors(GetClientType(), Config).ToArray());
+            return this._Instance = (T)_ProxyGenerator.CreateInterfaceProxyWithoutTarget(GetClientType(), interceptor);
+        }
+
+        protected virtual Type GetClientType()
+        {
+            return typeof(T);
         }
 
         private IEnumerable<Behaviors.IHttpBehavior> GetBehaviors(Type type, IConfig config)
@@ -62,14 +97,14 @@ namespace HttpLease
 	        }
         }
 
-        private Behaviors.IHttpBehavior[] GetBehaviorsWithCache(Type type, IConfig config)
-        {
-            Behaviors.IHttpBehavior[] result;
-            if (!_BehaviorsCache.TryGetValue(type, out result))
-            {
-                _BehaviorsCache[type] = result = GetBehaviors(type, config).ToArray();
-            }
-            return result;
-        }
+        //private Behaviors.IHttpBehavior[] GetBehaviorsWithCache(Type type, IConfig config)
+        //{
+        //    Behaviors.IHttpBehavior[] result;
+        //    if (!_BehaviorsCache.TryGetValue(type, out result))
+        //    {
+        //        _BehaviorsCache[type] = result = GetBehaviors(type, config).ToArray();
+        //    }
+        //    return result;
+        //}
     }
 }

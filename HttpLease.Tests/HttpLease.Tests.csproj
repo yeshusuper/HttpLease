@@ -51,7 +51,15 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="IHttp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnitTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HttpLease\HttpLease.csproj">
+      <Project>{285f5100-0d80-48e4-be61-02047fb3d78a}</Project>
+      <Name>HttpLease</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

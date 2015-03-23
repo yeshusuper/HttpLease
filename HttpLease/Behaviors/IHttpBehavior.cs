@@ -39,6 +39,7 @@ namespace HttpLease.Behaviors
         Encoding Encoding { get; }
         Formatters.IFormatter Formatter { get; }
         IDictionary<string, string> FiexdHeaders { get; }
+        Type ReturnType { get; }
 
         bool IsMatch(Castle.DynamicProxy.IInvocation invocation);
         void Verify();
@@ -85,6 +86,7 @@ namespace HttpLease.Behaviors
             Encoding = config.Encoding;
             Host = config.Host;
             Formatter = config.Formatter;
+            ReturnType = methodInfo.ReturnType;
         }
 
         public List<IHttpParameterBehavior> HeaderKeys { get; private set; }
@@ -97,6 +99,7 @@ namespace HttpLease.Behaviors
         public MethodKind Method { get; set; }
         public string Host { get; private set; }
         public Formatters.IFormatter Formatter { get; set; }
+        public Type ReturnType { get; set; }
         public IDictionary<string, string> FiexdHeaders { get; private set; }
 
         public bool IsMatch(Castle.DynamicProxy.IInvocation invocation)
@@ -129,23 +132,22 @@ namespace HttpLease.Behaviors
             var querys = new List<string>();
             foreach (var item in QueryKeys)
             {
-                foreach(var pair in Formatter.GetRequestParameters(item.Key, args[item.ArgIndex]))
-                {
-                    querys.Add(String.Format("{0}={1}",
-                        item.IsEncodeKey ? System.Web.HttpUtility.UrlEncode(pair.Key) : pair.Key,
-                        item.IsEncodeValue ? System.Web.HttpUtility.UrlEncode(pair.Value) : pair.Value
-                        ));
-                }
+                var rps = Formatter.GetRequestParameters(item.Key, args[item.ArgIndex], Encoding);
+                querys.Add(rps.ToString(item.IsEncodeKey, item.IsEncodeValue));
             }
             if(querys.Count > 0)
             {
-                url += (url.IndexOf('?') > -1 ? "?" : "&") + String.Join("&", querys);
+                url += (url.IndexOf('?') == -1 ? "?" : "&") + String.Join("&", querys);
             }
 
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = Method.ToString();
             request.ContentType = FiexdHeaders[Headers.ContentType];
-            request.Host = Host;
+            if (Host != null)
+            {
+                var uri = new Uri(Host);
+                request.Host = uri.Host;
+            }
 
             foreach (var item in HeaderKeys)
             {
@@ -155,13 +157,8 @@ namespace HttpLease.Behaviors
             var fields = new List<string>();
             foreach (var item in FieldKeys)
             {
-                foreach (var pair in Formatter.GetRequestParameters(item.Key, args[item.ArgIndex]))
-                {
-                    fields.Add(String.Format("{0}={1}",
-                        item.IsEncodeKey ? System.Web.HttpUtility.UrlEncode(pair.Key, Encoding) : pair.Key,
-                        item.IsEncodeValue ? System.Web.HttpUtility.UrlEncode(pair.Value, Encoding) : pair.Value
-                        ));
-                }
+                var rps = Formatter.GetRequestParameters(item.Key, args[item.ArgIndex], Encoding);
+                fields.Add(rps.ToString(item.IsEncodeKey, item.IsEncodeValue));
             }
 
             if(MethodKind.GET != Method && fields.Count > 0)

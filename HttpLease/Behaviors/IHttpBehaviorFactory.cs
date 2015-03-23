@@ -15,7 +15,7 @@ namespace HttpLease.Behaviors
 
     internal class HttpBehaviorFactory
     {
-        private static Regex _UrlPathRegex = new Regex("\\{(^\\})+\\}", RegexOptions.Compiled);
+        private static Regex _UrlPathRegex = new Regex("\\{([^\\}]+)\\}", RegexOptions.Compiled);
 
         public IHttpBehavior Create(MethodInfo methodInfo, IConfig config)
         {
@@ -79,8 +79,8 @@ namespace HttpLease.Behaviors
                 var parmeterAttr = param.GetCustomAttributes(typeof(BaseParameterAttribute), false).FirstOrDefault() as BaseParameterAttribute;
                 if (parmeterAttr == null || parmeterAttr is PathAttribute)
                 {
-                    if (parmeterAttr != null && parmeterAttr.Key != null)
-                        paramName = parmeterAttr.Key.Trim().ToLower();
+                    if (parmeterAttr != null && parmeterAttr.Name != null)
+                        paramName = parmeterAttr.Name.Trim().ToLower();
                     if (behavior.IsWithPath && urlPathIndexs.Values.Contains(paramName))
                     {
                         foreach (var pair in urlPathIndexs)
@@ -102,8 +102,8 @@ namespace HttpLease.Behaviors
                     }
                 }
 
-                if (parmeterAttr.Key != null)
-                    paramName = parmeterAttr.Key.Trim().ToLower();
+                if (parmeterAttr.Name != null)
+                    paramName = parmeterAttr.Name.Trim().ToLower();
 
 
                 ParameterBehavior(behavior, paramName, parmeterAttr as HeaderAttribute, i);

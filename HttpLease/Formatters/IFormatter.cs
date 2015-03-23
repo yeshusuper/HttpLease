@@ -7,6 +7,6 @@ namespace HttpLease.Formatters
 {
     public interface IFormatter
     {
-        IDictionary<string, string> GetRequestParameters(string key, object value);
+        RequestParameters GetRequestParameters(string key, object value, Encoding encoding);
     }
 }

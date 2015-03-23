@@ -34,6 +34,9 @@
     <Reference Include="Castle.Core">
       <HintPath>..\packages\Castle.Core.3.3.0\lib\net40-client\Castle.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -50,7 +53,9 @@
     <Compile Include="Behaviors\IHttpParameterBehavior.cs" />
     <Compile Include="EnctypeAttribute.cs" />
     <Compile Include="FieldAttribute.cs" />
+    <Compile Include="Formatters\FormFormatter.cs" />
     <Compile Include="Formatters\IFormatter.cs" />
+    <Compile Include="Formatters\RequestParameters.cs" />
     <Compile Include="FormUrlEncodedAttribute.cs" />
     <Compile Include="GlobalConfig.cs" />
     <Compile Include="HeaderAttribute.cs" />
@@ -59,6 +64,8 @@
     <Compile Include="HttpLease.cs" />
     <Compile Include="HttpPostAttribute.cs" />
     <Compile Include="HttpPutAttribute.cs" />
+    <Compile Include="HttpResponse.cs" />
+    <Compile Include="HttpResponseException.cs" />
     <Compile Include="IConfig.cs" />
     <Compile Include="IHttpLeaseProxy.cs" />
     <Compile Include="HttpMethodAttribute.cs" />

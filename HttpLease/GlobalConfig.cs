@@ -13,7 +13,8 @@ namespace HttpLease
         {
             Config = new Config
             {
-                Encoding = Encoding.UTF8
+                Encoding = Encoding.UTF8,
+                Formatter = new Formatters.FormFormatter()
             };
         }
     }

@@ -11,6 +11,6 @@ namespace HttpLease
         /// <summary>
         /// 参数key，如果不设置则为参数名称
         /// </summary>
-        public string Key { get; set; }
+        public string Name { get; set; }
     }
 }
