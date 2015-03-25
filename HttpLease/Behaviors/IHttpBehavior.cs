@@ -93,6 +93,7 @@ namespace HttpLease.Behaviors
         public IDictionary<int, IHttpParameterBehavior> PathKeys { get; private set; }
         public List<IHttpParameterBehavior> QueryKeys { get; private set; }
         public List<IHttpParameterBehavior> FieldKeys { get; private set; }
+        public IHttpParameterBehavior BodyKey { get; set; }
         public string Url { get; set; }
         public bool IsWithPath { get; set; }
         public Encoding Encoding { get; set; }
@@ -132,8 +133,7 @@ namespace HttpLease.Behaviors
             var querys = new List<string>();
             foreach (var item in QueryKeys)
             {
-                var rps = Formatter.GetRequestParameters(item.Key, args[item.ArgIndex], Encoding);
-                querys.Add(rps.ToString(item.IsEncodeKey, item.IsEncodeValue));
+                querys.Add(item.GetRequestString(args, Encoding));
             }
             if(querys.Count > 0)
             {
@@ -157,8 +157,7 @@ namespace HttpLease.Behaviors
             var fields = new List<string>();
             foreach (var item in FieldKeys)
             {
-                var rps = Formatter.GetRequestParameters(item.Key, args[item.ArgIndex], Encoding);
-                fields.Add(rps.ToString(item.IsEncodeKey, item.IsEncodeValue));
+                fields.Add(item.GetRequestString(args, Encoding));
             }
 
             if(MethodKind.GET != Method && fields.Count > 0)
@@ -171,6 +170,10 @@ namespace HttpLease.Behaviors
                 byte[] d = Encoding.GetBytes(fieldContent);
                 dataWriter.Write(d, 0, d.Length);
                 dataWriter.Flush();
+            }
+            else
+            {
+                request.ContentLength = 0;
             }
 
             return request;

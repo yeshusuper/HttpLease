@@ -76,18 +76,17 @@ namespace HttpLease.Behaviors
             {
                 var param = parameters[i];
                 var paramName = param.Name.ToLower();
-                var parmeterAttr = param.GetCustomAttributes(typeof(BaseParameterAttribute), false).FirstOrDefault() as BaseParameterAttribute;
+                var parmeterAttr = param.GetCustomAttributes(typeof(ParameterAttribute), false).FirstOrDefault() as ParameterAttribute;
                 if (parmeterAttr == null || parmeterAttr is PathAttribute)
                 {
-                    if (parmeterAttr != null && parmeterAttr.Name != null)
-                        paramName = parmeterAttr.Name.Trim().ToLower();
+                    paramName = GetParmeterName(parmeterAttr) ?? paramName;
                     if (behavior.IsWithPath && urlPathIndexs.Values.Contains(paramName))
                     {
                         foreach (var pair in urlPathIndexs)
                         {
                             if (pair.Value == paramName)
                             {
-                                behavior.PathKeys.Add(pair.Key, new HttpParameterBehavior(paramName, i));
+                                behavior.PathKeys.Add(pair.Key, new HttpParameterBehavior(paramName, i, config.Formatter));
                             }
                         }
                         continue;
@@ -102,13 +101,12 @@ namespace HttpLease.Behaviors
                     }
                 }
 
-                if (parmeterAttr.Name != null)
-                    paramName = parmeterAttr.Name.Trim().ToLower();
+                paramName = GetParmeterName(parmeterAttr) ?? paramName;
 
-
-                ParameterBehavior(behavior, paramName, parmeterAttr as HeaderAttribute, i);
-                ParameterBehavior(behavior, paramName, parmeterAttr as QueryAttribute, enctypeAttr, i);
-                ParameterBehavior(behavior, paramName, parmeterAttr as FieldAttribute, enctypeAttr, i);
+                ParameterBehavior(behavior, paramName, parmeterAttr as HeaderAttribute, i, config.Formatter);
+                ParameterBehavior(behavior, paramName, parmeterAttr as QueryAttribute, enctypeAttr, i, config.Formatter);
+                ParameterBehavior(behavior, paramName, parmeterAttr as FieldAttribute, enctypeAttr, i, config.Formatter);
+                ParameterBehavior(behavior, paramName, parmeterAttr as FieldMapAttribute, enctypeAttr, i, config.Formatter);
             }
 
             behavior.Verify();
@@ -116,26 +114,49 @@ namespace HttpLease.Behaviors
             return behavior;
         }
 
-        private void ParameterBehavior(IHttpBehavior behavior, string paramName, HeaderAttribute attr, int argIndex)
+        private string GetParmeterName(ParameterAttribute parmeterAttr)
         {
-            if (attr == null) return;
-            behavior.HeaderKeys.Add(new HttpParameterBehavior(paramName, argIndex));
+            if (parmeterAttr != null && parmeterAttr is BaseParameterAttribute)
+            {
+                var name = ((BaseParameterAttribute)parmeterAttr).Name;
+                if (name != null)
+                {
+                    return name.Trim().ToLower();
+                }
+            }
+            return null;
         }
 
-        private void ParameterBehavior(IHttpBehavior behavior, string paramName, QueryAttribute attr, EnctypeAttribute enctype, int argIndex)
+        private void ParameterBehavior(IHttpBehavior behavior, string paramName, HeaderAttribute attr, int argIndex, Formatters.IFormatter formatter)
         {
             if (attr == null) return;
-            behavior.QueryKeys.Add(new HttpParameterBehavior(paramName, argIndex)
+            behavior.HeaderKeys.Add(new HttpParameterBehavior(paramName, argIndex, formatter));
+        }
+
+        private void ParameterBehavior(IHttpBehavior behavior, string paramName, QueryAttribute attr, EnctypeAttribute enctype, int argIndex, Formatters.IFormatter formatter)
+        {
+            if (attr == null) return;
+            behavior.QueryKeys.Add(new HttpParameterBehavior(paramName, argIndex, formatter)
+            {
+                IsEncodeKey = attr.IsEncodeKey ?? enctype.DefaultEncodeKey,
+                IsEncodeValue = true
+            });
+        }
+
+        private void ParameterBehavior(IHttpBehavior behavior, string paramName, FieldAttribute attr, EnctypeAttribute enctype, int argIndex, Formatters.IFormatter formatter)
+        {
+            if (attr == null) return;
+            behavior.FieldKeys.Add(new HttpParameterBehavior(paramName, argIndex, formatter)
             {
                 IsEncodeKey = attr.IsEncodeKey ?? enctype.DefaultEncodeKey,
                 IsEncodeValue = attr.IsEncodeValue ?? enctype.DefaultEncodeValue
             });
         }
 
-        private void ParameterBehavior(IHttpBehavior behavior, string paramName, FieldAttribute attr, EnctypeAttribute enctype, int argIndex)
+        private void ParameterBehavior(IHttpBehavior behavior, string paramName, FieldMapAttribute attr, EnctypeAttribute enctype, int argIndex, Formatters.IFormatter formatter)
         {
             if (attr == null) return;
-            behavior.FieldKeys.Add(new HttpParameterBehavior(paramName, argIndex)
+            behavior.FieldKeys.Add(new FieldMapParameterBehavior(paramName, argIndex, formatter)
             {
                 IsEncodeKey = attr.IsEncodeKey ?? enctype.DefaultEncodeKey,
                 IsEncodeValue = attr.IsEncodeValue ?? enctype.DefaultEncodeValue

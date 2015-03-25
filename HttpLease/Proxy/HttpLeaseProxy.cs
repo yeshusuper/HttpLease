@@ -3,14 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace HttpLease
+namespace HttpLease.Proxy
 {
-    internal interface IHttpLeaseProxy<T>
-        where T : class
-    {
-        T Client { get; }
-    }
-
     internal class HttpLeaseProxy : HttpLeaseProxy<object>
     {
         private readonly Type _ClientType;
@@ -46,18 +40,17 @@ namespace HttpLease
 
                 var response = new HttpResponse((System.Net.HttpWebResponse)request.GetResponse());
                 object result = null;
-                if(response.TryConvert(behavoir.ReturnType, out result))
+                if (response.TryConvert(behavoir.ReturnType, out result))
                 {
-                    invocation.ReturnValue = result;  
+                    invocation.ReturnValue = result;
                 }
                 else
                 {
                     throw new Exception("不支持此返回类型：" + behavoir.ReturnType.ToString());
-                }         
+                }
             }
         }
-
-        //private static Dictionary<Type, Behaviors.IHttpBehavior[]> _BehaviorsCache = new Dictionary<Type, Behaviors.IHttpBehavior[]>();
+        
         private static Castle.DynamicProxy.ProxyGenerator _ProxyGenerator = new Castle.DynamicProxy.ProxyGenerator();
 
         public IConfig Config { get; private set; }
@@ -90,21 +83,11 @@ namespace HttpLease
                 throw new Exception("只支持接口类型");
 
             var factory = new Behaviors.HttpBehaviorFactory();
-            
-            foreach (var item in type.GetMethods())
-	        {
-                yield return factory.Create(item, config);
-	        }
-        }
 
-        //private Behaviors.IHttpBehavior[] GetBehaviorsWithCache(Type type, IConfig config)
-        //{
-        //    Behaviors.IHttpBehavior[] result;
-        //    if (!_BehaviorsCache.TryGetValue(type, out result))
-        //    {
-        //        _BehaviorsCache[type] = result = GetBehaviors(type, config).ToArray();
-        //    }
-        //    return result;
-        //}
+            foreach (var item in type.GetMethods())
+            {
+                yield return factory.Create(item, config);
+            }
+        }
     }
 }

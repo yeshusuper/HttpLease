@@ -23,6 +23,29 @@ namespace HttpLease.Formatters
             return new RequestParameters(result, encoding);
         }
 
+        public RequestParameters GetRequestParameters(object value, Encoding encoding)
+        {
+            Dictionary<string, string[]> result = null;
+
+            if (value != null)
+            {
+                var jt = JConstructor.FromObject(value) as JObject;
+                if (jt == null)
+                    throw new Exception("只支持能转换为json的object对象的类型");
+                result = new Dictionary<string, string[]>();
+                foreach (var item in jt)
+                {
+                    AddToDictionary(result, GetParameters(item.Key, item.Value));
+                }
+            }
+            if (result == null)
+                result = new Dictionary<string, string[]>();
+
+            return new RequestParameters(result, encoding);
+        }
+
+
+
         private Dictionary<string, string[]> GetParameters(string prefix, JToken jt)
         {
             if (jt is JObject)
