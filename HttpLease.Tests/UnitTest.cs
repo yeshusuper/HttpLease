@@ -98,6 +98,29 @@ namespace HttpLease.Tests
         }
 
         [TestMethod]
+        public void Post_File()
+        {
+            try
+            {
+                using (var file = new System.IO.FileStream("1.txt", System.IO.FileMode.Create))
+                {
+                    var content = "HttpLease测试发送文件";
+                    var data = System.Text.Encoding.UTF8.GetBytes(content);
+                    file.Write(data, 0, data.Length);
+                    var result = _Http.PostFile(file.Name);
+                    Assert.AreEqual("{\"content\":\"" + content + "\",\"filename\":\"v1\":\"1.txt\"}", result);
+                }
+            }
+            finally
+            {
+                System.IO.File.Delete("1.txt");
+            }
+
+            
+            
+        }
+
+        [TestMethod]
         public void Delete_Api_Test_With_Body()
         {
             var result = _Http.Delete(3, "23456");

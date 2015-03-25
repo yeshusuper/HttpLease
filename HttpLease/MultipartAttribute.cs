@@ -8,9 +8,11 @@ namespace HttpLease
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class MultipartAttribute : EnctypeAttribute
     {
+        public const string MultipartContentType = "multipart/form-data";
+
         internal override string ContentType
         {
-            get { return "multipart/form-data"; }
+            get { return MultipartContentType; }
         }
 
         internal override bool DefaultEncodeKey

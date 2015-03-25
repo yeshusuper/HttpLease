@@ -70,6 +70,7 @@
     <Compile Include="HttpResponse.cs" />
     <Compile Include="HttpResponseException.cs" />
     <Compile Include="IConfig.cs" />
+    <Compile Include="PartAttribute.cs" />
     <Compile Include="Proxy\HttpLeaseProxy.cs" />
     <Compile Include="Proxy\IHttpLeaseProxy.cs" />
     <Compile Include="HttpMethodAttribute.cs" />

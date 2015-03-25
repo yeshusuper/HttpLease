@@ -107,6 +107,7 @@ namespace HttpLease.Behaviors
                 ParameterBehavior(behavior, paramName, parmeterAttr as QueryAttribute, enctypeAttr, i, config.Encoding, config.Formatter);
                 ParameterBehavior(behavior, paramName, parmeterAttr as FieldAttribute, enctypeAttr, i, config.Encoding, config.Formatter);
                 ParameterBehavior(behavior, paramName, parmeterAttr as FieldMapAttribute, enctypeAttr, i, config.Encoding, config.Formatter);
+                ParameterBehavior(behavior, paramName, parmeterAttr as PartAttribute, enctypeAttr, i, config.Encoding, config.Formatter);
             }
 
             behavior.Verify();
@@ -169,6 +170,24 @@ namespace HttpLease.Behaviors
                 IsEncodeKey = attr.IsEncodeKey ?? enctype.DefaultEncodeKey,
                 IsEncodeValue = attr.IsEncodeValue ?? enctype.DefaultEncodeValue
             });
+        }
+
+        private void ParameterBehavior(IHttpBehavior behavior, string paramName, PartAttribute attr, EnctypeAttribute enctype, int argIndex, Encoding encoding, Formatters.IFormatter formatter)
+        {
+            if (attr == null) return;
+            if (!attr.IsFile)
+            {
+                var pb = new HttpParameterBehavior(paramName, argIndex, encoding, formatter)
+                {
+                    IsEncodeKey = enctype.DefaultEncodeKey,
+                    IsEncodeValue = enctype.DefaultEncodeValue
+                };
+                behavior.PartKeys.Add(new HttpStringParameterStreamWrapperBehavior(pb));
+            }
+            else
+            {
+                behavior.PartKeys.Add(new HttpFileParameterBehavior(paramName, argIndex, encoding));
+            }
         }
     }
 }
