@@ -13,19 +13,24 @@ namespace HttpLease.Behaviors
         /// <summary>
         /// 包含的head参数
         /// </summary>
-        List<IHttpParameterBehavior> HeaderKeys { get; }
+        List<IHttpStringParameterBehavior> HeaderKeys { get; }
         /// <summary>
         /// 包含的Path参数
         /// </summary>
-        IDictionary<int, IHttpParameterBehavior> PathKeys { get; }
+        IDictionary<int, IHttpStringParameterBehavior> PathKeys { get; }
         /// <summary>
         /// 包含的Query参数
         /// </summary>
-        List<IHttpParameterBehavior> QueryKeys { get; }
+        List<IHttpStringParameterBehavior> QueryKeys { get; }
         /// <summary>
         /// 包含的Field参数
         /// </summary>
-        List<IHttpParameterBehavior> FieldKeys { get; }
+        List<IHttpStringParameterBehavior> FieldKeys { get; }
+        /// <summary>
+        /// 包含的Part参数
+        /// </summary>
+        MultiPartParameters PartKeys { get; }
+        CookieContainer CookieContainer { get; }
         string Host { get; }
         MethodKind Method { get; }
         /// <summary>
@@ -78,26 +83,29 @@ namespace HttpLease.Behaviors
         {
             _MethodInfo = methodInfo;
             _ParameterInfos = methodInfo.GetParameters().Select(p => new ParameterInfoMatcher(p)).ToArray();
-            HeaderKeys = new List<IHttpParameterBehavior>();
-            PathKeys = new Dictionary<int, IHttpParameterBehavior>();
-            QueryKeys = new List<IHttpParameterBehavior>();
-            FieldKeys = new List<IHttpParameterBehavior>();
+            HeaderKeys = new List<IHttpStringParameterBehavior>();
+            PathKeys = new Dictionary<int, IHttpStringParameterBehavior>();
+            QueryKeys = new List<IHttpStringParameterBehavior>();
+            FieldKeys = new List<IHttpStringParameterBehavior>();
+            PartKeys = new List<IHttpStringParameterBehavior>();
             FiexdHeaders = new Dictionary<string, string>(config.FiexdHeaders);
             Encoding = config.Encoding;
             Host = config.Host;
             Formatter = config.Formatter;
             ReturnType = methodInfo.ReturnType;
+            CookieContainer = config.CookieContainer;
         }
 
-        public List<IHttpParameterBehavior> HeaderKeys { get; private set; }
-        public IDictionary<int, IHttpParameterBehavior> PathKeys { get; private set; }
-        public List<IHttpParameterBehavior> QueryKeys { get; private set; }
-        public List<IHttpParameterBehavior> FieldKeys { get; private set; }
-        public IHttpParameterBehavior BodyKey { get; set; }
+        public List<IHttpStringParameterBehavior> HeaderKeys { get; private set; }
+        public IDictionary<int, IHttpStringParameterBehavior> PathKeys { get; private set; }
+        public List<IHttpStringParameterBehavior> QueryKeys { get; private set; }
+        public List<IHttpStringParameterBehavior> FieldKeys { get; private set; }
+        public List<IHttpStringParameterBehavior> PartKeys { get; private set; }
         public string Url { get; set; }
         public bool IsWithPath { get; set; }
         public Encoding Encoding { get; set; }
         public MethodKind Method { get; set; }
+        public CookieContainer CookieContainer { get; private set; }
         public string Host { get; private set; }
         public Formatters.IFormatter Formatter { get; set; }
         public Type ReturnType { get; set; }
@@ -133,7 +141,7 @@ namespace HttpLease.Behaviors
             var querys = new List<string>();
             foreach (var item in QueryKeys)
             {
-                querys.Add(item.GetRequestString(args, Encoding));
+                querys.Add(item.GetRequestString(args));
             }
             if(querys.Count > 0)
             {
@@ -141,6 +149,7 @@ namespace HttpLease.Behaviors
             }
 
             var request = (HttpWebRequest)WebRequest.Create(url);
+            request.CookieContainer = CookieContainer;
             request.Method = Method.ToString();
             request.ContentType = FiexdHeaders[Headers.ContentType];
             if (Host != null)
@@ -157,7 +166,7 @@ namespace HttpLease.Behaviors
             var fields = new List<string>();
             foreach (var item in FieldKeys)
             {
-                fields.Add(item.GetRequestString(args, Encoding));
+                fields.Add(item.GetRequestString(args));
             }
 
             if(MethodKind.GET != Method && fields.Count > 0)
@@ -183,7 +192,6 @@ namespace HttpLease.Behaviors
         {
             if (MethodKind.GET == Method && FieldKeys.Count > 0)
                 throw new Exception("get 情况不能使用 Field");
-
         }
     }
 

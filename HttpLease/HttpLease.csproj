@@ -51,6 +51,8 @@
     <Compile Include="Behaviors\IHttpBehavior.cs" />
     <Compile Include="Behaviors\IHttpBehaviorFactory.cs" />
     <Compile Include="Behaviors\IHttpParameterBehavior.cs" />
+    <Compile Include="Behaviors\IHttpStreamParameterBehavior.cs" />
+    <Compile Include="Behaviors\IHttpStringParameterBehavior.cs" />
     <Compile Include="FieldMapAttribute.cs" />
     <Compile Include="EnctypeAttribute.cs" />
     <Compile Include="FieldAttribute.cs" />
@@ -78,6 +80,7 @@
     <Compile Include="QueryAttribute.cs" />
     <Compile Include="UrlAttribute.cs" />
     <Compile Include="Utilities\Headers.cs" />
+    <Compile Include="Utilities\MimeTypeHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

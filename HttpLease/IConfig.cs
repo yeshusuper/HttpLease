@@ -11,6 +11,7 @@ namespace HttpLease
         IDictionary<string, string> FiexdHeaders { get; }
         string Host { get; set; }
         Formatters.IFormatter Formatter { get; set; }
+        System.Net.CookieContainer CookieContainer { get; set; }
     }
 
     internal class Config : IConfig
@@ -42,5 +43,7 @@ namespace HttpLease
             FiexdHeaders = new Dictionary<string, string>(config.FiexdHeaders);
             Formatter = config.Formatter;
         }
+
+        public System.Net.CookieContainer CookieContainer { get; set; }
     }
 }

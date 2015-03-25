@@ -8,7 +8,7 @@ namespace HttpLease.Formatters
 {
     public class RequestParameters
     {
-        private Dictionary<string, string[]> _Store;
+        internal Dictionary<string, string[]> _Store;
         public Encoding Encoding { get; set; }
 
         internal RequestParameters(Dictionary<string, string[]> dictionary, Encoding encoding)
