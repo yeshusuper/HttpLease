@@ -87,7 +87,7 @@ namespace HttpLease.Behaviors
             PathKeys = new Dictionary<int, IHttpStringParameterBehavior>();
             QueryKeys = new List<IHttpStringParameterBehavior>();
             FieldKeys = new List<IHttpStringParameterBehavior>();
-            PartKeys = new MultiPartParameters(config.Encoding);
+            PartKeys = new List<IHttpStringParameterBehavior>();
             FiexdHeaders = new Dictionary<string, string>(config.FiexdHeaders);
             Encoding = config.Encoding;
             Host = config.Host;
@@ -100,7 +100,7 @@ namespace HttpLease.Behaviors
         public IDictionary<int, IHttpStringParameterBehavior> PathKeys { get; private set; }
         public List<IHttpStringParameterBehavior> QueryKeys { get; private set; }
         public List<IHttpStringParameterBehavior> FieldKeys { get; private set; }
-        public MultiPartParameters PartKeys { get; private set; }
+        public List<IHttpStringParameterBehavior> PartKeys { get; private set; }
         public string Url { get; set; }
         public bool IsWithPath { get; set; }
         public Encoding Encoding { get; set; }
@@ -176,19 +176,8 @@ namespace HttpLease.Behaviors
                     request.ContentLength = fieldContent.Length;
 
                 var dataWriter = request.GetRequestStream();
-                if (FiexdHeaders[Headers.ContentType] != MultipartAttribute.MultipartContentType)
-                {
-                    byte[] d = Encoding.GetBytes(fieldContent);
-                    dataWriter.Write(d, 0, d.Length);
-                }
-                else
-                {
-                    using(var md5 = System.Security.Cryptography.MD5.Create())
-                    {
-                        var bas = md5.ComputeHash(Guid.NewGuid().ToByteArray());
-                        PartKeys.CopyTo(dataWriter, args, boundary)
-                    }
-                }
+                byte[] d = Encoding.GetBytes(fieldContent);
+                dataWriter.Write(d, 0, d.Length);
                 dataWriter.Flush();
             }
             else
@@ -203,8 +192,6 @@ namespace HttpLease.Behaviors
         {
             if (MethodKind.GET == Method && FieldKeys.Count > 0)
                 throw new Exception("get 情况不能使用 Field");
-            if (FiexdHeaders[Headers.ContentType] != MultipartAttribute.MultipartContentType && PartKeys.Count > 0)
-                throw new Exception("part 只能配合 Multipart使用");
         }
     }
 

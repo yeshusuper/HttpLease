@@ -33,10 +33,6 @@ namespace HttpLease.Tests
         [HttpPost]
         [Url("/Api/Obj/{id}")]
         string Post4(long id, [FieldMap]PostRequest value, [FieldMap]PostRequest2 value2);
-        [Multipart]
-        [HttpPost]
-        [Url("/File/Index")]
-        string PostFile([Part]string file);
 
 
         [HttpDelete]
