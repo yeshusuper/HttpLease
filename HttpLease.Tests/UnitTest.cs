@@ -11,7 +11,7 @@ namespace HttpLease.Tests
         [TestInitialize]
         public void Initialize()
         {
-            GlobalConfig.Config.Host = "http://127.0.0.1:5698";
+            GlobalConfig.Config.Host = "http://192.168.0.22:5698";
             _Http = HttpLease.Get<IHttp>();
         }
 
@@ -102,22 +102,39 @@ namespace HttpLease.Tests
         {
             try
             {
+                var content = "HttpLease测试发送文件";
                 using (var file = new System.IO.FileStream("1.txt", System.IO.FileMode.Create))
                 {
-                    var content = "HttpLease测试发送文件";
                     var data = System.Text.Encoding.UTF8.GetBytes(content);
                     file.Write(data, 0, data.Length);
-                    var result = _Http.PostFile(file.Name);
-                    Assert.AreEqual("{\"content\":\"" + content + "\",\"filename\":\"v1\":\"1.txt\"}", result);
                 }
+                var result = _Http.PostFile(@"1.txt");
+                Assert.AreEqual("{\"content\":\"" + content + "\",\"filename\":\"1.txt\"}", result);
+            }
+            finally
+            {
+                System.IO.File.Delete("1.txt");
+            }        
+        }
+
+        [TestMethod]
+        public void Post_File_With_Data()
+        {
+            try
+            {
+                var content = "HttpLease测试发送文件";
+                using (var file = new System.IO.FileStream("1.txt", System.IO.FileMode.Create))
+                {
+                    var data = System.Text.Encoding.UTF8.GetBytes(content);
+                    file.Write(data, 0, data.Length);
+                }
+                var result = _Http.PostFile2(@"1.txt", "test1");
+                Assert.AreEqual("{\"content\":\"" + content + "\",\"filename\":\"1.txt\",\"strs\":\"test1\"}", result);
             }
             finally
             {
                 System.IO.File.Delete("1.txt");
             }
-
-            
-            
         }
 
         [TestMethod]

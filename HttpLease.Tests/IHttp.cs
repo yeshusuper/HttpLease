@@ -37,6 +37,10 @@ namespace HttpLease.Tests
         [HttpPost]
         [Url("/File/Index")]
         string PostFile([Part]string file);
+        [Multipart]
+        [HttpPost]
+        [Url("/File/Index2")]
+        string PostFile2([Part]string file, [Field]string strs);
 
 
         [HttpDelete]

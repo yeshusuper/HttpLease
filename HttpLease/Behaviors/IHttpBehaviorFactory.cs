@@ -103,11 +103,12 @@ namespace HttpLease.Behaviors
 
                 paramName = GetParmeterName(parmeterAttr) ?? paramName;
 
-                ParameterBehavior(behavior, paramName, parmeterAttr as HeaderAttribute, i, config.Encoding, config.Formatter);
-                ParameterBehavior(behavior, paramName, parmeterAttr as QueryAttribute, enctypeAttr, i, config.Encoding, config.Formatter);
-                ParameterBehavior(behavior, paramName, parmeterAttr as FieldAttribute, enctypeAttr, i, config.Encoding, config.Formatter);
-                ParameterBehavior(behavior, paramName, parmeterAttr as FieldMapAttribute, enctypeAttr, i, config.Encoding, config.Formatter);
-                ParameterBehavior(behavior, paramName, parmeterAttr as PartAttribute, enctypeAttr, i, config.Encoding, config.Formatter);
+                var add = false;
+                add = add || ParameterBehavior(behavior, paramName, parmeterAttr as HeaderAttribute, i, config.Encoding, config.Formatter);
+                add = add || ParameterBehavior(behavior, paramName, parmeterAttr as FieldAttribute, enctypeAttr, i, config.Encoding, config.Formatter);
+                add = add || ParameterBehavior(behavior, paramName, parmeterAttr as FieldMapAttribute, enctypeAttr, i, config.Encoding, config.Formatter);
+                add = add || ParameterBehavior(behavior, paramName, parmeterAttr as PartAttribute, enctypeAttr, i, config.Encoding, config.Formatter);
+                add = add || ParameterBehavior(behavior, paramName, parmeterAttr as QueryAttribute, enctypeAttr, i, config.Encoding, config.Formatter);
             }
 
             behavior.Verify();
@@ -128,25 +129,27 @@ namespace HttpLease.Behaviors
             return null;
         }
 
-        private void ParameterBehavior(IHttpBehavior behavior, string paramName, HeaderAttribute attr, int argIndex, Encoding encoding, Formatters.IFormatter formatter)
+        private bool ParameterBehavior(IHttpBehavior behavior, string paramName, HeaderAttribute attr, int argIndex, Encoding encoding, Formatters.IFormatter formatter)
         {
-            if (attr == null) return;
+            if (attr == null) return false;
             behavior.HeaderKeys.Add(new HttpParameterBehavior(paramName, argIndex, encoding, formatter));
+            return true;
         }
 
-        private void ParameterBehavior(IHttpBehavior behavior, string paramName, QueryAttribute attr, EnctypeAttribute enctype, int argIndex, Encoding encoding, Formatters.IFormatter formatter)
+        private bool ParameterBehavior(IHttpBehavior behavior, string paramName, QueryAttribute attr, EnctypeAttribute enctype, int argIndex, Encoding encoding, Formatters.IFormatter formatter)
         {
-            if (attr == null) return;
+            if (attr == null) return false;
             behavior.QueryKeys.Add(new HttpParameterBehavior(paramName, argIndex, encoding, formatter)
             {
                 IsEncodeKey = attr.IsEncodeKey ?? enctype.DefaultEncodeKey,
                 IsEncodeValue = true
             });
+            return true;
         }
 
-        private void ParameterBehavior(IHttpBehavior behavior, string paramName, FieldAttribute attr, EnctypeAttribute enctype, int argIndex, Encoding encoding, Formatters.IFormatter formatter)
+        private bool ParameterBehavior(IHttpBehavior behavior, string paramName, FieldAttribute attr, EnctypeAttribute enctype, int argIndex, Encoding encoding, Formatters.IFormatter formatter)
         {
-            if (attr == null) return;
+            if (attr == null) return false;
             var pb = new HttpParameterBehavior(paramName, argIndex, encoding, formatter)
             {
                 IsEncodeKey = attr.IsEncodeKey ?? enctype.DefaultEncodeKey,
@@ -160,21 +163,23 @@ namespace HttpLease.Behaviors
             {
                 behavior.FieldKeys.Add(pb);
             }
+            return true;
         }
 
-        private void ParameterBehavior(IHttpBehavior behavior, string paramName, FieldMapAttribute attr, EnctypeAttribute enctype, int argIndex, Encoding encoding, Formatters.IFormatter formatter)
+        private bool ParameterBehavior(IHttpBehavior behavior, string paramName, FieldMapAttribute attr, EnctypeAttribute enctype, int argIndex, Encoding encoding, Formatters.IFormatter formatter)
         {
-            if (attr == null) return;
+            if (attr == null) return false;
             behavior.FieldKeys.Add(new FieldMapParameterBehavior(paramName, argIndex, encoding, formatter)
             {
                 IsEncodeKey = attr.IsEncodeKey ?? enctype.DefaultEncodeKey,
                 IsEncodeValue = attr.IsEncodeValue ?? enctype.DefaultEncodeValue
             });
+            return true;
         }
 
-        private void ParameterBehavior(IHttpBehavior behavior, string paramName, PartAttribute attr, EnctypeAttribute enctype, int argIndex, Encoding encoding, Formatters.IFormatter formatter)
+        private bool ParameterBehavior(IHttpBehavior behavior, string paramName, PartAttribute attr, EnctypeAttribute enctype, int argIndex, Encoding encoding, Formatters.IFormatter formatter)
         {
-            if (attr == null) return;
+            if (attr == null) return false;
             if (!attr.IsFile)
             {
                 var pb = new HttpParameterBehavior(paramName, argIndex, encoding, formatter)
@@ -188,6 +193,7 @@ namespace HttpLease.Behaviors
             {
                 behavior.PartKeys.Add(new HttpFileParameterBehavior(paramName, argIndex, encoding));
             }
+            return true;
         }
     }
 }

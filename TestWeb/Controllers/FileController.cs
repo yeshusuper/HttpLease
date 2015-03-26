@@ -8,9 +8,8 @@ namespace TestWeb.Controllers
 {
     public class FileController : Controller
     {
-        public ActionResult Index()
+        public ActionResult Index(System.Web.HttpPostedFileBase file)
         {
-            var file = HttpContext.Request.Files[0];
             using(var reader = new System.IO.StreamReader(file.InputStream))
             {
                 var content = reader.ReadToEnd();
@@ -22,5 +21,18 @@ namespace TestWeb.Controllers
             }
         }
 
+        public ActionResult Index2(System.Web.HttpPostedFileBase file, string strs)
+        {
+            using (var reader = new System.IO.StreamReader(file.InputStream))
+            {
+                var content = reader.ReadToEnd();
+                return Content(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    content = content,
+                    filename = file.FileName,
+                    strs = strs,
+                }));
+            }
+        }
     }
 }

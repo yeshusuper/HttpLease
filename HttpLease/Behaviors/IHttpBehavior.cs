@@ -151,7 +151,11 @@ namespace HttpLease.Behaviors
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.CookieContainer = CookieContainer;
             request.Method = Method.ToString();
+            request.Accept = FiexdHeaders[Headers.Accept];
             request.ContentType = FiexdHeaders[Headers.ContentType];
+            request.Headers[Headers.CacheControl] = FiexdHeaders[Headers.CacheControl];
+            request.Headers[Headers.AcceptLanguage] = FiexdHeaders[Headers.AcceptLanguage];
+            request.Headers[Headers.AcceptEncoding] = FiexdHeaders[Headers.AcceptEncoding];
             if (Host != null)
             {
                 var uri = new Uri(Host);
@@ -169,27 +173,34 @@ namespace HttpLease.Behaviors
                 fields.Add(item.GetRequestString(args));
             }
 
-            if(MethodKind.GET != Method && fields.Count > 0)
+            if(MethodKind.GET != Method)
             {
-                var fieldContent = String.Join("&", fields);
-                if (Method == MethodKind.PUT || Method == MethodKind.DELETE)
-                    request.ContentLength = fieldContent.Length;
-
-                var dataWriter = request.GetRequestStream();
+                var fieldContent = fields.Count == 0 ? String.Empty : String.Join("&", fields);
+                if(Method == MethodKind.PUT || Method == MethodKind.DELETE)
+                {
+                    var contentLength = 0;
+                    if(!String.IsNullOrEmpty(fieldContent) && FiexdHeaders[Headers.ContentType] != MultipartAttribute.MultipartContentType)
+                    {
+                        contentLength = fieldContent.Length;
+                    }
+                    request.ContentLength = contentLength;
+                }
                 if (FiexdHeaders[Headers.ContentType] != MultipartAttribute.MultipartContentType)
                 {
+                    var dataWriter = request.GetRequestStream();
                     byte[] d = Encoding.GetBytes(fieldContent);
                     dataWriter.Write(d, 0, d.Length);
+                    dataWriter.Flush();
                 }
                 else
                 {
-                    using(var md5 = System.Security.Cryptography.MD5.Create())
-                    {
-                        var bas = md5.ComputeHash(Guid.NewGuid().ToByteArray());
-                        PartKeys.CopyTo(dataWriter, args, boundary)
-                    }
+                    var boundary = Headers.CreateBoundary();
+                    request.ContentType += ";boundary=" + boundary;
+                    request.KeepAlive = true;
+                    var dataWriter = request.GetRequestStream();
+                    PartKeys.CopyTo(dataWriter, args, boundary);
+                    dataWriter.Flush();
                 }
-                dataWriter.Flush();
             }
             else
             {

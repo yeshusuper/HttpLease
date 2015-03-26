@@ -22,13 +22,18 @@ namespace HttpLease.Behaviors
 
         public void CopyTo(System.IO.Stream stream, object[] args, string boundary)
         {
-            var boundaryBytes = Encoding.GetBytes(boundary);
+            var boundaryBytes = Encoding.GetBytes("--" + boundary);
             var enterBytes = Encoding.GetBytes("\r\n");
+            var endBytes = Encoding.GetBytes("--");
             var firstPart = true;
             foreach (var part in this)
             {
                 part.CopyTo(stream, args, ref firstPart, boundaryBytes, enterBytes);
             }
+            stream.Write(enterBytes, 0, enterBytes.Length);
+            stream.Write(boundaryBytes, 0, boundaryBytes.Length);
+            stream.Write(endBytes, 0, endBytes.Length);
+            stream.Write(enterBytes, 0, enterBytes.Length);
         }
     }
 
