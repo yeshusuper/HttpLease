@@ -32,7 +32,15 @@ namespace HttpLease
                 }
                 else
                 {
-                    return false;
+                    try
+                    {
+                        result = Newtonsoft.Json.JsonConvert.DeserializeObject(ReadString(), returnType);
+                        return true;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
                 }
             }
             return true;
