@@ -151,10 +151,15 @@ namespace HttpLease.Behaviors
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.CookieContainer = CookieContainer;
             request.Method = Method.ToString();
-            request.Accept = FiexdHeaders[Headers.Accept];
-            request.ContentType = FiexdHeaders[Headers.ContentType];
-            request.Headers[Headers.CacheControl] = FiexdHeaders[Headers.CacheControl];
-            request.Headers[Headers.AcceptLanguage] = FiexdHeaders[Headers.AcceptLanguage];
+            if (FiexdHeaders.ContainsKey(Headers.Accept))
+                request.Accept = FiexdHeaders[Headers.Accept];
+            if (FiexdHeaders.ContainsKey(Headers.ContentType))
+                request.ContentType = FiexdHeaders[Headers.ContentType];
+            if (FiexdHeaders.ContainsKey(Headers.CacheControl))
+                request.Headers[Headers.CacheControl] = FiexdHeaders[Headers.CacheControl];
+            if (FiexdHeaders.ContainsKey(Headers.AcceptLanguage))
+                request.Headers[Headers.AcceptLanguage] = FiexdHeaders[Headers.AcceptLanguage];
+            if (FiexdHeaders.ContainsKey(Headers.AcceptEncoding))
             request.Headers[Headers.AcceptEncoding] = FiexdHeaders[Headers.AcceptEncoding];
             if (Host != null)
             {
