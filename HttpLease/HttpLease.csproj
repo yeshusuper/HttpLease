@@ -50,9 +50,11 @@
     <Compile Include="BaseParameterAttribute.cs" />
     <Compile Include="Behaviors\IHttpBehavior.cs" />
     <Compile Include="Behaviors\IHttpBehaviorFactory.cs" />
+    <Compile Include="Behaviors\IHttpBodyBehavior.cs" />
     <Compile Include="Behaviors\IHttpParameterBehavior.cs" />
     <Compile Include="Behaviors\IHttpStreamParameterBehavior.cs" />
     <Compile Include="Behaviors\IHttpStringParameterBehavior.cs" />
+    <Compile Include="BodyAttribute.cs" />
     <Compile Include="FieldMapAttribute.cs" />
     <Compile Include="EnctypeAttribute.cs" />
     <Compile Include="FieldAttribute.cs" />

@@ -30,6 +30,8 @@ namespace HttpLease.Behaviors
         /// 包含的Part参数
         /// </summary>
         MultiPartParameters PartKeys { get; }
+        IHttpBodyBehavior BodyKey { get; set; }
+
         CookieContainer CookieContainer { get; }
         string Host { get; }
         MethodKind Method { get; }
@@ -101,6 +103,7 @@ namespace HttpLease.Behaviors
         public List<IHttpStringParameterBehavior> QueryKeys { get; private set; }
         public List<IHttpStringParameterBehavior> FieldKeys { get; private set; }
         public MultiPartParameters PartKeys { get; private set; }
+        public IHttpBodyBehavior BodyKey { get; set; }
         public string Url { get; set; }
         public bool IsWithPath { get; set; }
         public Encoding Encoding { get; set; }
@@ -177,6 +180,8 @@ namespace HttpLease.Behaviors
             {
                 fields.Add(item.GetRequestString(args));
             }
+            if(BodyKey != null)
+                fields.Add(BodyKey.GetRequestString(args));
 
             if(MethodKind.GET != Method)
             {
@@ -217,11 +222,26 @@ namespace HttpLease.Behaviors
 
         public void Verify()
         {
-            if (MethodKind.GET == Method && FieldKeys.Count > 0)
-                throw new Exception("get 情况不能使用 Field");
+            if (MethodKind.GET == Method)
+            {
+                if (FieldKeys.Count > 0)
+                    throw new Exception("get 情况不能使用 Field");
+                if (BodyKey != null)
+                    throw new Exception("get 情况不能使用 Body");
+            }
+            if (BodyKey != null)
+            {
+                if(FiexdHeaders[Headers.ContentType] == MultipartAttribute.MultipartContentType)
+                    throw new Exception("使用 Body 时不能使用 Multipart");
+                if (FieldKeys.Count > 0)
+                    throw new Exception("使用 Body 时不能使用 Field");
+                if (PathKeys.Count > 0)
+                    throw new Exception("使用 Body 时不能使用 Path");
+            }
             if (FiexdHeaders[Headers.ContentType] != MultipartAttribute.MultipartContentType && PartKeys.Count > 0)
                 throw new Exception("part 只能配合 Multipart使用");
         }
+
     }
 
 }

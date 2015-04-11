@@ -109,6 +109,7 @@ namespace HttpLease.Behaviors
                 add = add || ParameterBehavior(behavior, paramName, parmeterAttr as FieldMapAttribute, enctypeAttr, i, config.Encoding, config.Formatter);
                 add = add || ParameterBehavior(behavior, paramName, parmeterAttr as PartAttribute, enctypeAttr, i, config.Encoding, config.Formatter);
                 add = add || ParameterBehavior(behavior, paramName, parmeterAttr as QueryAttribute, enctypeAttr, i, config.Encoding, config.Formatter);
+                add = add || ParameterBehavior(behavior, paramName, parmeterAttr as BodyAttribute, i);
             }
 
             behavior.Verify();
@@ -127,6 +128,15 @@ namespace HttpLease.Behaviors
                 }
             }
             return null;
+        }
+
+        private bool ParameterBehavior(IHttpBehavior behavior, string paramName, BodyAttribute attr, int argIndex)
+        {
+            if (attr == null) return false;
+            if (behavior.BodyKey != null)
+                throw new Exception("只能设置一次body");
+            behavior.BodyKey = new HttpBodyBehavior(argIndex);
+            return true;
         }
 
         private bool ParameterBehavior(IHttpBehavior behavior, string paramName, HeaderAttribute attr, int argIndex, Encoding encoding, Formatters.IFormatter formatter)

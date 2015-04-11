@@ -25,6 +25,9 @@ namespace HttpLease.Tests
         [Url("/Api/Test")]
         string Post(long post, [Field(Name = "")]string value);
         [HttpPost]
+        [Url("/Api/Test")]
+        string PostBody(long post, [Body]string value);
+        [HttpPost]
         [Url("/Api/Test/{id}")]
         string Post2(long id, string value);
         [HttpPost]

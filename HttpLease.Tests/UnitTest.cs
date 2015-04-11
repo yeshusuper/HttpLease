@@ -73,6 +73,9 @@ namespace HttpLease.Tests
         {
             var result = _Http.Post(3, "23456");
             Assert.AreEqual("{\"post\":3,\"value\":\"23456\"}", result);
+
+            result = _Http.PostBody(3, "=234567");
+            Assert.AreEqual("{\"post\":3,\"value\":\"234567\"}", result);
         }
 
         [TestMethod]
