@@ -46,6 +46,7 @@ namespace HttpLease.Behaviors
         Encoding Encoding { get; }
         Formatters.IFormatter Formatter { get; }
         IDictionary<string, string> FiexdHeaders { get; }
+        int Timeout { get; }
         Type ReturnType { get; }
 
         bool IsMatch(Castle.DynamicProxy.IInvocation invocation);
@@ -106,6 +107,7 @@ namespace HttpLease.Behaviors
         public IHttpBodyBehavior BodyKey { get; set; }
         public string Url { get; set; }
         public bool IsWithPath { get; set; }
+        public int Timeout { get; set; }
         public Encoding Encoding { get; set; }
         public MethodKind Method { get; set; }
         public CookieContainer CookieContainer { get; private set; }
@@ -152,6 +154,8 @@ namespace HttpLease.Behaviors
             }
 
             var request = (HttpWebRequest)WebRequest.Create(url);
+            if (Timeout > 0)
+                request.Timeout = Timeout;
             request.CookieContainer = CookieContainer;
             request.Method = Method.ToString();
             if (FiexdHeaders.ContainsKey(Headers.Accept))
@@ -241,7 +245,6 @@ namespace HttpLease.Behaviors
             if (FiexdHeaders[Headers.ContentType] != MultipartAttribute.MultipartContentType && PartKeys.Count > 0)
                 throw new Exception("part 只能配合 Multipart使用");
         }
-
     }
 
 }

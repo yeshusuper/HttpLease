@@ -63,7 +63,7 @@ namespace HttpLease.Proxy
 
         public HttpLeaseProxy(IConfig config)
         {
-            Config = config;
+            Config = new Config(config);
         }
 
         private T CreateInstance()

@@ -81,6 +81,7 @@
     <Compile Include="PathAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryAttribute.cs" />
+    <Compile Include="TimeoutAttribute.cs" />
     <Compile Include="UrlAttribute.cs" />
     <Compile Include="Utilities\Headers.cs" />
     <Compile Include="Utilities\MimeTypeHelper.cs" />

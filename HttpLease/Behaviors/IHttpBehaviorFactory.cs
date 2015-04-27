@@ -42,6 +42,10 @@ namespace HttpLease.Behaviors
                 behavior.FiexdHeaders[Headers.ContentType] = enctypeAttr.ContentType;
             }
 
+            var timeout = methodAttrs.FirstOrDefault(a => a is TimeoutAttribute) as TimeoutAttribute;
+            if (timeout != null)
+                behavior.Timeout = timeout.Timeout;
+
             var url = String.Empty;
             var urlAttr = methodAttrs.FirstOrDefault(a => a is UrlAttribute) as UrlAttribute;
             if (urlAttr != null && urlAttr.Url != null)
