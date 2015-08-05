@@ -24,5 +24,22 @@ namespace TestWeb.Controllers
                 value = request,
             };
         }
+
+        public class PutRequest
+        {
+            public C[] A { get; set; }
+            public string B { get; set; }
+
+            public class C
+            {
+                public string D { get; set; }
+            }
+        }
+
+        [HttpPut]
+        public object Put([FromBody]PutRequest request)
+        {
+            return request;
+        }
     }
 }

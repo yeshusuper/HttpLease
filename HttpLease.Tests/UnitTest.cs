@@ -101,6 +101,12 @@ namespace HttpLease.Tests
         }
 
         [TestMethod]
+        public void Put_Api_Test_With_Object()
+        {
+            var result = _Http.Put5(new PutRequest.C[] { new PutRequest.C { D = "1" }, new PutRequest.C { D = "2" } }, "3");
+        }
+
+        [TestMethod]
         public void Post_File()
         {
             try
