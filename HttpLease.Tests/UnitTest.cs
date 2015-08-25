@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using HttpLease.Utilities;
 
 namespace HttpLease.Tests
 {
@@ -7,12 +8,20 @@ namespace HttpLease.Tests
     public class UnitTest
     {
         private IHttp _Http;
+        private ITaobao _HttpTaobao;
 
         [TestInitialize]
         public void Initialize()
         {
-            GlobalConfig.Config.Host = "http://192.168.0.22:5698";
-            _Http = HttpLease.Get<IHttp>();
+            _Http = HttpLease.Get<IHttp>(config => config.Host = "http://192.168.0.22:5698");
+            _HttpTaobao = HttpLease.Get<ITaobao>();
+        }
+
+        [TestMethod]
+        public void Get_Taobao()
+        {
+            var ip = _HttpTaobao.Get("211.136.192.6");
+            Assert.IsNotNull(ip);
         }
 
         [TestMethod]
@@ -96,7 +105,7 @@ namespace HttpLease.Tests
         [TestMethod]
         public void Post_Api_Test_With_Object()
         {
-            var result = _Http.Post4(5, new PostRequest { v1 = 3, v2 = DateTime.MaxValue }, new PostRequest2 { v3 = "hah", v4  = 1.02M });
+            var result = _Http.Post4(5, new PostRequest { v1 = 3, v2 = DateTime.MaxValue }, new PostRequest2 { v3 = "hah", v4 = 1.02M });
             Assert.AreEqual("{\"post\":5,\"value\":{\"v1\":3,\"v2\":\"" + DateTime.MaxValue.ToString("yyyy-MM-ddTHH:mm:ss") + "\",\"v3\":\"hah\",\"v4\":1.02}}", result);
         }
 
@@ -123,7 +132,7 @@ namespace HttpLease.Tests
             finally
             {
                 System.IO.File.Delete("1.txt");
-            }        
+            }
         }
 
         [TestMethod]

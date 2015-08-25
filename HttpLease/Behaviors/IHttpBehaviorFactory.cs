@@ -49,7 +49,7 @@ namespace HttpLease.Behaviors
             var url = String.Empty;
             var urlAttr = methodAttrs.FirstOrDefault(a => a is UrlAttribute) as UrlAttribute;
             if (urlAttr != null && urlAttr.Url != null)
-                url = urlAttr.Url.ToLower().Trim();
+                url = urlAttr.Url.Trim();
 
             var urlPathIndexs = new Dictionary<int, string>(); 
 
@@ -63,7 +63,7 @@ namespace HttpLease.Behaviors
                     return "{" + r + "}";
                 }));
                 behavior.IsWithPath = behavior.Url != url;
-                if (!behavior.Url.StartsWith("http"))
+                if (!behavior.Url.ToLower().StartsWith("http"))
                 {
                     if (!behavior.Url.StartsWith("/"))
                         behavior.Url = "/" + behavior.Url;
