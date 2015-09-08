@@ -15,6 +15,7 @@ namespace HttpLease
             Config = new Config
             {
                 Encoding = Encoding.UTF8,
+                DefaultResponseEncoding = Encoding.Default,
                 Formatter = new Formatters.FormFormatter()
             };
             Config.FiexdHeaders[Headers.CacheControl] = " max-age=0";

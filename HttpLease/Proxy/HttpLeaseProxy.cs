@@ -26,10 +26,12 @@ namespace HttpLease.Proxy
     {
         private class Interceptor : Castle.DynamicProxy.IInterceptor
         {
+            private readonly IConfig _Config;
             private readonly Behaviors.IHttpBehavior[] _Behaviors;
 
-            public Interceptor(Behaviors.IHttpBehavior[] behaviors)
+            public Interceptor(IConfig config, Behaviors.IHttpBehavior[] behaviors)
             {
+                _Config = config;
                 _Behaviors = behaviors ?? new Behaviors.IHttpBehavior[0];
             }
 
@@ -38,7 +40,7 @@ namespace HttpLease.Proxy
                 var behavoir = _Behaviors.First(b => b.IsMatch(invocation));
                 var request = behavoir.CreateHttpWebRequest(invocation.Arguments);
 
-                var response = new HttpResponse((System.Net.HttpWebResponse)request.GetResponse());
+                var response = new HttpResponse((System.Net.HttpWebResponse)request.GetResponse(), _Config.DefaultResponseEncoding);
                 object result = null;
                 if (response.TryConvert(behavoir.ReturnType, out result))
                 {
@@ -68,7 +70,7 @@ namespace HttpLease.Proxy
 
         private T CreateInstance()
         {
-            var interceptor = new Interceptor(GetBehaviors(GetClientType(), Config).ToArray());
+            var interceptor = new Interceptor(Config, GetBehaviors(GetClientType(), Config).ToArray());
             return this._Instance = (T)_ProxyGenerator.CreateInterfaceProxyWithoutTarget(GetClientType(), interceptor);
         }
 

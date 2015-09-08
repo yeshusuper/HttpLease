@@ -9,11 +9,13 @@ namespace HttpLease
     {
         private readonly System.Net.HttpWebResponse _Response;
         private readonly System.IO.Stream _Stream;
+        private readonly Encoding _DefaultResponseEncoding;
 
-        internal HttpResponse(System.Net.HttpWebResponse response)
+        internal HttpResponse(System.Net.HttpWebResponse response, Encoding defaultEncoding)
         {
             _Response = response;
             _Stream = response.GetResponseStream();
+            _DefaultResponseEncoding = defaultEncoding;
         }
 
         public bool TryConvert(Type returnType, out object result)
@@ -48,7 +50,7 @@ namespace HttpLease
 
         private string ReadString()
         {
-            Encoding encoding = Encoding.Default;
+            Encoding encoding = _DefaultResponseEncoding;
             try
             {
                 encoding = Encoding.GetEncoding(_Response.CharacterSet);
