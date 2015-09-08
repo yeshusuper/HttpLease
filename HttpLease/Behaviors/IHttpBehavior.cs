@@ -48,6 +48,7 @@ namespace HttpLease.Behaviors
         IDictionary<string, string> FiexdHeaders { get; }
         int Timeout { get; }
         Type ReturnType { get; }
+        Encoding ResponseEncoding { get; }
 
         bool IsMatch(Castle.DynamicProxy.IInvocation invocation);
         void Verify();
@@ -93,6 +94,7 @@ namespace HttpLease.Behaviors
             PartKeys = new MultiPartParameters(config.Encoding);
             FiexdHeaders = new Dictionary<string, string>(config.FiexdHeaders);
             Encoding = config.Encoding;
+            ResponseEncoding = config.ResponseEncoding;
             Host = config.Host;
             Formatter = config.Formatter;
             ReturnType = methodInfo.ReturnType;
@@ -109,6 +111,7 @@ namespace HttpLease.Behaviors
         public bool IsWithPath { get; set; }
         public int Timeout { get; set; }
         public Encoding Encoding { get; set; }
+        public Encoding ResponseEncoding { get; set; }
         public MethodKind Method { get; set; }
         public CookieContainer CookieContainer { get; private set; }
         public string Host { get; private set; }

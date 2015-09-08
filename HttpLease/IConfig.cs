@@ -8,7 +8,7 @@ namespace HttpLease
     public interface IConfig
     {
         Encoding Encoding { get; set; }
-        Encoding DefaultResponseEncoding { get; set; }
+        Encoding ResponseEncoding { get; set; }
         IDictionary<string, string> FiexdHeaders { get; }
         string Host { get; set; }
         Formatters.IFormatter Formatter { get; set; }
@@ -18,7 +18,7 @@ namespace HttpLease
     internal class Config : IConfig
     {
         public Encoding Encoding { get; set; }
-        public Encoding DefaultResponseEncoding { get; set; }
+        public Encoding ResponseEncoding { get; set; }
         public IDictionary<string, string> FiexdHeaders { get; private set; }
 
         private string _Host;
@@ -41,6 +41,7 @@ namespace HttpLease
         public Config(IConfig config)
         {
             Encoding = config.Encoding;
+            ResponseEncoding = config.ResponseEncoding;
             Host = config.Host;
             FiexdHeaders = new Dictionary<string, string>(config.FiexdHeaders);
             Formatter = config.Formatter;
