@@ -79,7 +79,7 @@ namespace HttpLease.Behaviors
             for (var i = 0; i < parameters.Length; i++)
             {
                 var param = parameters[i];
-                var paramName = param.Name.ToLower();
+                var paramName = param.Name;
                 var parmeterAttr = param.GetCustomAttributes(typeof(ParameterAttribute), false).FirstOrDefault() as ParameterAttribute;
                 if (parmeterAttr == null || parmeterAttr is PathAttribute)
                 {
