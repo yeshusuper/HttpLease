@@ -30,8 +30,8 @@ namespace HttpLease.Formatters
                 foreach (var item in pair.Value)
                 {
                     result.Add(String.Format("{0}={1}",
-                        isEncodeKey ? System.Web.HttpUtility.UrlEncode(pair.Key) : pair.Key,
-                        isEncodeValue ? System.Web.HttpUtility.UrlEncode(item) : item
+                        isEncodeKey ? System.Web.HttpUtility.UrlEncode(pair.Key, Encoding) : pair.Key,
+                        isEncodeValue ? System.Web.HttpUtility.UrlEncode(item, Encoding) : item
                         ));
                 }
             }
