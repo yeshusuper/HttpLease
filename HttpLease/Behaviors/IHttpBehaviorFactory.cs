@@ -128,7 +128,7 @@ namespace HttpLease.Behaviors
                 var name = ((BaseParameterAttribute)parmeterAttr).Name;
                 if (name != null)
                 {
-                    return name.Trim().ToLower();
+                    return name.Trim();
                 }
             }
             return null;
